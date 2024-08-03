@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Products{% endblock %}
+
+{% block content_block %}
+    <button id="toggle-form-btn">Add Product</button>
+    <div id="product-form" class="hidden">
+        <form>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            
+            <label for="category">Category:</label>
+            <input type="text" id="category" name="category" required>
+            
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+            
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+            
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <div id="product-list">
+        <div class="product-item">
+            <h2>Product Name</h2>
+            <p class="category">Category</p>
+            <p class="price">$19.99</p>
+            <p class="description">This is a very long description that should be truncated with an ellipsis if it exceeds a certain length. It will be truncated to make it more readable.</p>
+        </div>
+    </div>
+{% endblock %}

@@ -1,133 +1,209 @@
 /* Importing Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
 
 /* Global styles */
 body {
-    font-family: 'Roboto', sans-serif; /* Use the imported font */
-    line-height: 1.6; /* Improve readability */
-    color: #333; /* Dark grey text color */
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4; /* Light background color for contrast */
+  font-family: "Roboto", sans-serif; /* Use the imported font */
+  line-height: 1.6; /* Improve readability */
+  color: #333; /* Dark grey text color */
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4; /* Light background color for contrast */
 }
 
 /* Navbar styling */
 .navbar {
-    background-color: #333;
-    color: #fff;
-    padding: 10px 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  background-color: #333;
+  color: #fff;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 .navbar ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
 }
 
 .navbar li {
-    margin-right: 20px; /* Spacing between menu items */
+  margin-right: 20px; /* Spacing between menu items */
 }
 
 .navbar a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: 700; /* Bold text for better visibility */
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700; /* Bold text for better visibility */
 }
 
 .navbar a:hover {
-    text-decoration: underline; /* Underline on hover for better interactivity */
+  text-decoration: underline; /* Underline on hover for better interactivity */
 }
 
 /* Content styling */
 .content {
-    padding: 20px;
-    max-width: 1200px; /* Maximum width for better readability */
-    margin: 0 auto; /* Center align content */
+  padding: 20px;
+  max-width: 1200px; /* Maximum width for better readability */
+  margin: 0 auto; /* Center align content */
 }
 
 /* Button styling */
+
 button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #007bff;
-    color: #fff;
-    transition: background-color 0.3s ease; /* Smooth background color transition */
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  transition: background-color 0.3s ease; /* Smooth background color transition */
 }
 
 button:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }
 
-.hidden {
-    display: none;
+/* Button to toggle form visibility */
+#toggle-form-btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #007bff;
+  background-color: #fff;
+  border: 2px solid #007bff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+/* Button hover styling */
+#toggle-form-btn:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* Delete button styling */
+.delete-btn {
+  position: absolute;
+  padding: 3px 10px 3px 10px;
+  right: 10px;
+  top: 10px;
+  display: none;
+  background: none;
+  border: none;
+  font-size: 25px;
+  cursor: pointer;
+  color: #ff6b6b; /* Color for delete icon */
+}
+
+.delete-btn:hover {
+  background-color: #cc0000;
 }
 
 /* Form styling */
 form {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin: 20px 0;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
 }
 
 form label {
-    display: block;
-    margin: 10px 0 5px; /* Spacing for labels */
-    font-weight: 500; /* Slightly bold labels */
+  display: block;
+  margin: 10px 0 5px; /* Spacing for labels */
+  font-weight: 500; /* Slightly bold labels */
 }
 
-form input, form textarea {
-    width: -webkit-fill-available;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    margin-bottom: 15px;
-    font-size: 16px;
+form input,
+form textarea {
+  width: -webkit-fill-available;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+  font-size: 16px;
 }
 
 form textarea {
-    resize: vertical; /* Allow vertical resizing only */
-    min-height: 100px; /* Minimum height for text area */
+  resize: vertical; /* Allow vertical resizing only */
+  min-height: 100px; /* Minimum height for text area */
+}
+
+.flash-messages {
+  margin-bottom: 20px;
+  transition: opacity 1s ease-out;
+}
+
+.flash-messages.fade-out {
+  opacity: 0;
+}
+
+.alert {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
 }
 
 /* Product list styling */
 #product-list {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .product-item {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px 40px 20px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: 0.5s ease-out;
+}
+
+.product-item:hover .delete-btn {
+  display: block;
+}
+
+.product-item:hover {
+  background-color: #f9f9f9;
+  transition: 0.5s ease-out;
 }
 
 .product-item h2 {
-    margin: 0 0 10px;
-    font-size: 1.8em;
-    color: #333;
+  margin: 0 0 10px;
+  font-size: 1.8em;
+  color: #333;
 }
 
 .product-item .category,
 .product-item .price {
-    margin: 5px 0;
-    font-size: 1.1em;
-    color: #555;
+  margin: 5px 0;
+  font-size: 1.1em;
+  color: #555;
 }
 
 .product-item .description {
-    font-size: 0.9em;
-    color: #666;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 300px; /* Adjust based on your layout */
+  font-size: 0.9em;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px; /* Adjust based on your layout */
 }

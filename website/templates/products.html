@@ -1,32 +1,128 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}Products{% endblock %} {% block
+content_block %}
 
-{% block title %}Products{% endblock %}
+<button id="toggle-form-btn">Add New Product</button>
+<div id="product-form-container" style="display: none">
+  <form method="POST" action="{{ url_for('views.products') }}">
+    <div>
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required />
+    </div>
 
-{% block content_block %}
-    <button id="toggle-form-btn">Add Product</button>
-    <div id="product-form" class="hidden">
-        <form>
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
-            
-            <label for="category">Category:</label>
-            <input type="text" id="category" name="category" required>
-            
-            <label for="price">Price:</label>
-            <input type="number" id="price" name="price" step="0.01" required>
-            
-            <label for="description">Description:</label>
-            <textarea id="description" name="description" required></textarea>
-            
-            <button type="submit">Submit</button>
-        </form>
+    <div>
+      <label for="sku">SKU:</label>
+      <input type="text" id="sku" name="sku" required />
     </div>
-    <div id="product-list">
-        <div class="product-item">
-            <h2>Product Name</h2>
-            <p class="category">Category</p>
-            <p class="price">$19.99</p>
-            <p class="description">This is a very long description that should be truncated with an ellipsis if it exceeds a certain length. It will be truncated to make it more readable.</p>
-        </div>
+
+    <div>
+      <label for="category">Category:</label>
+      <input type="text" id="category" name="category" required/>
     </div>
+
+    <div>
+      <label for="price">Price:</label>
+      <input
+        type="number"
+        id="price"
+        name="price"
+        step="0.01"
+        min="0"
+        required
+      />
+    </div>
+
+    <div>
+      <label for="quantity">Quantity:</label>
+      <input type="number" id="quantity" name="quantity" min="0" required />
+    </div>
+
+    <div>
+      <label for="supplier">Supplier:</label>
+      <input type="text" id="supplier" name="supplier" required />
+    </div>
+
+    <div>
+      <label for="description">Description:</label>
+      <textarea id="description" name="description" required></textarea>
+    </div>
+
+    <button type="submit">Submit</button>
+  </form>
+</div>
+
+<!-- Edit form container (initially hidden) -->
+<div id="edit-form-container" style="display: none">
+  <form id="edit-product-form" method="POST" action="">
+    <input type="hidden" id="edit-product-id" name="product_id" />
+
+    <div>
+      <label for="edit-name">Name:</label>
+      <input type="text" id="edit-name" name="name" required />
+    </div>
+
+    <div>
+      <label for="edit-sku">SKU:</label>
+      <input type="text" id="edit-sku" name="sku" required />
+    </div>
+
+    <div>
+      <label for="edit-category">Category:</label>
+      <input type="text" id="edit-category" name="category" />
+    </div>
+
+    <div>
+      <label for="edit-price">Price:</label>
+      <input
+        type="number"
+        id="edit-price"
+        name="price"
+        step="0.01"
+        min="0"
+        required
+      />
+    </div>
+
+    <div>
+      <label for="edit-quantity">Quantity:</label>
+      <input
+        type="number"
+        id="edit-quantity"
+        name="quantity"
+        min="0"
+        required
+      />
+    </div>
+
+    <div>
+      <label for="edit-supplier">Supplier:</label>
+      <input type="text" id="edit-supplier" name="supplier" />
+    </div>
+
+    <div>
+      <label for="edit-description">Description:</label>
+      <textarea id="edit-description" name="description"></textarea>
+    </div>
+
+    <button type="submit">Update</button>
+  </form>
+</div>
+
+<!-- Displaying products -->
+<div id="product-list">
+  {% for product in products %}
+  <div class="product-item">
+    <h2>{{ product.name }}</h2>
+    <p class="category">{{ product.category }}</p>
+    <p class="price">{{ product.price }}</p>
+    <p class="description">{{ product.description }}</p>
+    <button class="delete-btn" data-product-id="{{ product.id }}">
+      &times;
+    </button>
+    <button class="edit-btn" data-product-id="{{ product.id }}">Edit</button>
+  </div>
+  {% else %}
+  <p>No products available.</p>
+  {% endfor %}
+</div>
+
 {% endblock %}

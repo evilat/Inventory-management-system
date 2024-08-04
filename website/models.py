@@ -1,7 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
+from . import db
 from sqlalchemy import func
-
-db = SQLAlchemy()
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -12,8 +10,8 @@ class Product(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=0)
     supplier = db.Column(db.String(100))
     description = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, server_default=func.now())
-    updated_at = db.Column(db.DateTime, server_default=func.now(), onupdate=func.now())
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
     def __repr__(self):
         return f'<Product {self.name}>'

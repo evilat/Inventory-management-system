@@ -15,6 +15,13 @@ class Product(db.Model):
 
     def __repr__(self):
         return f'<Product {self.name}>'
+    
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    
+    def __repr__(self):
+        return f'<Category {self.name}>'
 
 class Sale(db.Model):
     id = db.Column(db.Integer, primary_key=True)

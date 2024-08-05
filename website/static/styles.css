@@ -65,6 +65,7 @@ button:hover {
 }
 
 /* Button to toggle form visibility */
+/* Button to import csv files */
 #toggle-form-btn {
   display: inline-block;
   padding: 0.75rem 1.5rem;
@@ -85,6 +86,36 @@ button:hover {
   color: #fff;
 }
 
+#import-csv-btn {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #04aa6d;
+  background-color: #fff;
+  border: 2px solid #04aa6d;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Button hover styling */
+#import-csv-btn:hover {
+  background-color: #04aa6d;
+  color: white;
+}
+
+.container-product-add {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.container-product-add > button,
+.container-product-add .import-container {
+  display: inline-block;
+  margin: 0;
+}
+
 /* Delete button styling */
 .delete-btn {
   position: absolute;
@@ -96,15 +127,78 @@ button:hover {
   border: none;
   font-size: 25px;
   cursor: pointer;
-  color: #ff6b6b; /* Color for delete icon */
+  color: #ff6b6b;
 }
 
 .delete-btn:hover {
   background-color: #cc0000;
 }
 
+.edit-btn {
+  position: absolute;
+  padding: 3px 10px 3px 10px;
+  right: 10px;
+  top: 50px;
+  display: none;
+  background: none;
+  border: none;
+  font-size: 25px;
+  cursor: pointer;
+  color: #007bff;
+}
+
+.edit-btn:hover {
+  background-color: #0056b3;
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.category-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.delete-category-form {
+  margin: 0;
+  padding: 0;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: #ffffff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.no-categories {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+}
+
 /* Form styling */
-form {
+.edit-product-form,
+.product-form {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
@@ -131,6 +225,62 @@ form textarea {
 form textarea {
   resize: vertical; /* Allow vertical resizing only */
   min-height: 100px; /* Minimum height for text area */
+}
+
+.category-filters {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 1rem;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Container for selectors */
+.selector-container {
+  margin-bottom: 5px; /* Adjust spacing as needed */
+}
+
+/* Label styling */
+.selector-label {
+  font-weight: bold;
+  margin-right: 0.5rem;
+  display: inline-block;
+}
+
+/* Custom select styling */
+.custom-select {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+/* Custom select focus styling */
+.custom-select:focus {
+  border-color: #007bff; /* Change to your primary color */
+  outline: none;
+}
+
+/* Option styling (optional) */
+.custom-select option {
+  padding: 0.5rem;
+}
+
+.search-container {
+  margin-bottom: 5px;
+}
+
+#product-search {
+  width: auto;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 .flash-messages {
@@ -161,9 +311,58 @@ form textarea {
   border-color: #f5c6cb;
 }
 
-/* Product list styling */
+/* Base styles for product list */
 #product-list {
-  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+/* Grid layout styles */
+.grid-layout {
+  flex-direction: row;
+}
+
+.grid-layout .product-item {
+  width: calc(
+    33.333% - 1rem
+  ); /* Adjust width to fit 3 items per row, minus gap */
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: #fff;
+}
+
+/* List layout styles */
+.list-layout {
+  flex-direction: column;
+}
+
+.list-layout .product-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+#grid-layout-btn {
+  padding: 0 5px;
+  background: none;
+  color: #000;
+}
+
+#list-layout-btn {
+  padding: 0 5px;
+  background: none;
+  color: #000;
+  font-size: large;
+}
+
+.category-filters button.active {
+  color: #007bff;
 }
 
 .product-item {
@@ -177,7 +376,8 @@ form textarea {
   transition: 0.5s ease-out;
 }
 
-.product-item:hover .delete-btn {
+.product-item:hover .delete-btn,
+.product-item:hover .edit-btn {
   display: block;
 }
 
@@ -187,16 +387,20 @@ form textarea {
 }
 
 .product-item h2 {
-  margin: 0 0 10px;
-  font-size: 1.8em;
+  margin: 0 0;
   color: #333;
 }
 
-.product-item .category,
+.product-item .category {
+  text-transform: uppercase;
+  font-weight: lighter;
+  font-size: 17px;
+  letter-spacing: 1px;
+  color: #808080;
+}
 .product-item .price {
-  margin: 5px 0;
   font-size: 1.1em;
-  color: #555;
+  color: #f72020;
 }
 
 .product-item .description {
@@ -206,4 +410,33 @@ form textarea {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 300px; /* Adjust based on your layout */
+}
+
+.category-filters .row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.selector-container,
+.search-container,
+.layout-toggle,
+.price-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.price-filter {
+  flex-grow: 1;
+  justify-content: flex-end;
+}
+
+.layout-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.price-input {
+  width: 70px;
 }

@@ -15,10 +15,24 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleButton.textContent = "Add New Product";
     }
   });
+
+  // Import CSV File
+  document.getElementById("import-csv-btn").addEventListener("click", () => {
+    document.getElementById("csv-file").click();
+  });
+
+  document.getElementById("csv-file").addEventListener("change", () => {
+    document.getElementById("import-csv-form").submit();
+  });
+
   // Handle edit button click with event delegation
   document.addEventListener("click", (e) => {
-    if (e.target.classList.contains("edit-btn")) {
-      const productId = e.target.getAttribute("data-product-id");
+    let target = e.target;
+
+    // Check if the target is the edit button or an <i> element inside the button
+    if (target.classList.contains("edit-btn") || target.closest(".edit-btn")) {
+      const editButton = target.closest(".edit-btn");
+      const productId = editButton.getAttribute("data-product-id");
 
       // Fetch product data from the server
       fetch(`/get_product/${productId}`)
@@ -41,6 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
           editForm.action = `/edit_product/${productId}`;
           editFormContainer.style.display = "block";
+          toggleButton.textContent = "Cancel";
+          formContainer.style.display = "none"; // Hide the add form
         })
         .catch((error) => console.error("Error:", error));
     }
@@ -61,22 +77,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 5000); // 5000 milliseconds = 5 seconds
   }
 
-  // Delete Product button
-  const deleteButtons = document.querySelectorAll(".delete-btn");
+  // Delete Product button using event delegation for dynamic content
+  document.addEventListener("click", (e) => {
+    let target = e.target;
 
-  deleteButtons.forEach((button) => {
-    button.addEventListener("click", (e) => {
-      const productId = e.target.getAttribute("data-product-id");
-
-      console.log("Delete button clicked for product ID:", productId);
+    // Check if the target is the delete button or an <i> element inside the button
+    if (
+      target.classList.contains("delete-btn") ||
+      target.closest(".delete-btn")
+    ) {
+      const deleteButton = target.closest(".delete-btn");
+      const productId = deleteButton.getAttribute("data-product-id");
 
       const isConfirmed = confirm(
         "Are you sure you want to delete this product?"
       );
 
       if (isConfirmed) {
-        console.log("User confirmed deletion for product ID:", productId);
-
         fetch(`/delete_product/${productId}`, {
           method: "DELETE",
           headers: {
@@ -85,9 +102,8 @@ document.addEventListener("DOMContentLoaded", () => {
         })
           .then((response) => response.json())
           .then((data) => {
-            console.log("Server response:", data);
             if (data.success) {
-              e.target.parentElement.remove();
+              e.target.closest(".product-item").remove();
             } else {
               alert("Failed to delete the product.");
             }
@@ -97,6 +113,60 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("An error occurred while deleting the product.");
           });
       }
-    });
+    }
   });
+
+  // Layout toggle functionality
+  const layoutSelector = document.getElementById("layout-selector");
+  const productList = document.getElementById("product-list");
+
+  // Initialize layout from local storage if it exists
+  const savedLayout = localStorage.getItem("layout") || "grid";
+  productList.classList.add(`${savedLayout}-layout`);
+  layoutSelector.value = savedLayout;
+
+  layoutSelector.addEventListener("change", () => {
+    const selectedLayout = layoutSelector.value;
+    productList.classList.remove("grid-layout", "list-layout");
+    productList.classList.add(`${selectedLayout}-layout`);
+    localStorage.setItem("layout", selectedLayout);
+  });
+
+  // Filter products by price and search term
+  const minPriceInput = document.getElementById("min-price");
+  const maxPriceInput = document.getElementById("max-price");
+  const searchInput = document.getElementById("product-search");
+
+  function filterProducts() {
+    const minPrice = parseFloat(minPriceInput.value) || 0;
+    const maxPrice = parseFloat(maxPriceInput.value) || Infinity;
+    const query = searchInput.value.toLowerCase();
+
+    document.querySelectorAll(".product-item").forEach((productItem) => {
+      const productName = productItem
+        .querySelector("h2")
+        .textContent.toLowerCase();
+      const productCategory = productItem
+        .querySelector(".category")
+        .textContent.toLowerCase();
+      const productPrice = parseFloat(
+        productItem.querySelector(".price").textContent.replace(/[^\d.-]/g, "")
+      );
+
+      const matchesSearch =
+        productName.includes(query) || productCategory.includes(query);
+      const matchesPrice = productPrice >= minPrice && productPrice <= maxPrice;
+
+      if (matchesSearch && matchesPrice) {
+        productItem.style.display = "block";
+      } else {
+        productItem.style.display = "none";
+      }
+    });
+  }
+
+  // Attach event listeners for filtering
+  minPriceInput.addEventListener("input", filterProducts);
+  maxPriceInput.addEventListener("input", filterProducts);
+  searchInput.addEventListener("input", filterProducts);
 });

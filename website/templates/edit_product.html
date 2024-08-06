@@ -59,6 +59,19 @@ content_block %}
     </div>
 
     <div>
+      <label for="sale-price">Sale Price:</label>
+      <input
+        type="number"
+        id="sale-price"
+        name="sale-price"
+        step="0.01"
+        min="0"
+        value="{{ product.sale_price if product else '' }}"
+        required
+      />
+    </div>
+
+    <div>
       <label for="quantity">Quantity:</label>
       <input
         type="number"

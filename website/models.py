@@ -7,6 +7,7 @@ class Product(db.Model):
     sku = db.Column(db.String(50), unique=True, nullable=False)
     category = db.Column(db.String(50))
     price = db.Column(db.Float, nullable=False)
+    sale_price = db.Column(db.Float, nullable=True)
     quantity = db.Column(db.Integer, nullable=False, default=0)
     supplier = db.Column(db.String(100))
     description = db.Column(db.Text)

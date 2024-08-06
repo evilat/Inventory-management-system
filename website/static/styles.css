@@ -121,7 +121,7 @@ button:hover {
   position: absolute;
   padding: 3px 10px 3px 10px;
   right: 10px;
-  top: 10px;
+  bottom: 10px;
   display: none;
   background: none;
   border: none;
@@ -138,7 +138,7 @@ button:hover {
   position: absolute;
   padding: 3px 10px 3px 10px;
   right: 10px;
-  top: 50px;
+  bottom: 50px;
   display: none;
   background: none;
   border: none;
@@ -336,16 +336,26 @@ form textarea {
 
 /* List layout styles */
 .list-layout {
+  display: flex;
   flex-direction: column;
 }
 
 .list-layout .product-item {
   width: 100%;
   display: flex;
-  align-items: center;
   border-bottom: 1px solid #ddd;
   padding: 1rem;
   box-sizing: border-box;
+  align-items: flex-start;
+  gap: 1rem; /* Adds space between image and details */
+}
+
+.image-container {
+  flex-shrink: 0; /* Prevents the image container from shrinking */
+}
+
+.details-container {
+  flex: 1; /* Allows the details container to take up the remaining space */
 }
 
 #grid-layout-btn {
@@ -384,6 +394,20 @@ form textarea {
 .product-item:hover {
   background-color: #f9f9f9;
   transition: 0.5s ease-out;
+}
+
+.grid-layout .product-image {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.list-layout .product-image {
+  width: 264px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
 }
 
 .product-item h2 {
@@ -439,4 +463,8 @@ form textarea {
 
 .price-input {
   width: 70px;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }

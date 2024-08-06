@@ -1,138 +1,32 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}Products{% endblock %} {% block
+content_block %}
 
-{% block title %}Products{% endblock %}
-
-{% block content_block %}
-
-<!-- Product add options -->
+<!-- Product add toggle -->
 <div class="container-product-add">
   <!-- Button to toggle the new product form -->
-  <button id="toggle-form-btn">Add New Product</button>
-  
+  <a href="{{ url_for('views.edit_product')}}"
+    ><button id="toggle-form-btn">Add New Product</button></a
+  >
+
   <!-- Import CSV Form -->
   <div class="import-container">
-    <form id="import-csv-form" method="POST" action="{{ url_for('views.import_csv') }}" enctype="multipart/form-data">
-      <input type="file" id="csv-file" name="csv_file" accept=".csv" style="display: none;" required />
+    <form
+      id="import-csv-form"
+      method="POST"
+      action="{{ url_for('views.import_csv') }}"
+      enctype="multipart/form-data"
+    >
+      <input
+        type="file"
+        id="csv-file"
+        name="csv_file"
+        accept=".csv"
+        style="display: none"
+        required
+      />
       <button type="button" id="import-csv-btn">Import CSV</button>
     </form>
   </div>
-</div>
-
-<!-- New product form container (initially hidden) -->
-<div id="product-form-container" style="display: none">
-  <form method="POST" class="product-form" action="{{ url_for('views.products') }}">
-    <div>
-      <label for="name">Name:</label>
-      <input type="text" id="name" name="name" required />
-    </div>
-
-    <div>
-      <label for="sku">SKU:</label>
-      <input type="text" id="sku" name="sku" required />
-    </div>
-
-    <div class="selector-container">
-      <label for="category" class="selector-label">Category:</label>
-      <select id="category" name="category" class="custom-select" required>
-        <option value="" disabled selected>Select a category</option>
-        {% for category in categories %}
-        <option value="{{ category.name }}" {% if category.name == selected_category %}selected{% endif %}>
-          {{ category.name }}
-        {% endfor %}
-      </select>
-    </div>
-
-    <div>
-      <label for="price">Price:</label>
-      <input
-        type="number"
-        id="price"
-        name="price"
-        step="0.01"
-        min="0"
-        required
-      />
-    </div>
-
-    <div>
-      <label for="quantity">Quantity:</label>
-      <input type="number" id="quantity" name="quantity" min="0" required />
-    </div>
-
-    <div>
-      <label for="supplier">Supplier:</label>
-      <input type="text" id="supplier" name="supplier" required />
-    </div>
-
-    <div>
-      <label for="description">Description:</label>
-      <textarea id="description" name="description" required></textarea>
-    </div>
-
-    <button type="submit">Submit</button>
-  </form>
-</div>
-
-<!-- Edit form container (initially hidden) -->
-<div id="edit-form-container" style="display: none">
-  <form id="edit-product-form" method="POST" action="{{ url_for('views.products') }}">
-    <input type="hidden" id="edit-product-id" name="product_id" />
-
-    <div>
-      <label for="edit-name">Name:</label>
-      <input type="text" id="edit-name" name="name" required />
-    </div>
-
-    <div>
-      <label for="edit-sku">SKU:</label>
-      <input type="text" id="edit-sku" name="sku" required />
-    </div>
-
-    <div class="selector-container">
-      <label for="edit-category" class="selector-label">Category:</label>
-      <select id="edit-category" name="category" class="custom-select" required>
-        {% for category in categories %}
-        <option value="{{ category.name }}" {% if product and category.name == product.category %}selected{% endif %}>
-          {{ category.name }}
-        {% endfor %}
-      </select>
-    </div>
-    
-    <div>
-      <label for="edit-price">Price:</label>
-      <input
-        type="number"
-        id="edit-price"
-        name="price"
-        step="0.01"
-        min="0"
-        required
-      />
-    </div>
-
-    <div>
-      <label for="edit-quantity">Quantity:</label>
-      <input
-        type="number"
-        id="edit-quantity"
-        name="quantity"
-        min="0"
-        required
-      />
-    </div>
-
-    <div>
-      <label for="edit-supplier">Supplier:</label>
-      <input type="text" id="edit-supplier" name="supplier" />
-    </div>
-
-    <div>
-      <label for="edit-description">Description:</label>
-      <textarea id="edit-description" name="description"></textarea>
-    </div>
-
-    <button type="submit">Update</button>
-  </form>
 </div>
 
 <!-- Category filters -->
@@ -140,20 +34,42 @@
   <div class="row">
     <!-- Category selector -->
     <div class="selector-container">
-      <label for="category-selector" class="selector-label">Filter by Category:</label>
-      <select id="category-selector" name="category" class="custom-select" onchange="location.href = this.options[this.selectedIndex].value;">
-        <option value="{{ url_for('views.products') }}" {% if not selected_category %}selected{% endif %}>All Categories</option>
-        {% for category in categories %}
-        <option value="{{ url_for('views.products', category=category.name) }}" {% if selected_category == category.name %}selected{% endif %}>
-          {{ category.name }}
+      <label for="category-selector" class="selector-label"
+        >Filter by Category:</label
+      >
+      <select
+        id="category-selector"
+        name="category"
+        class="custom-select"
+        onchange="location.href = this.options[this.selectedIndex].value;"
+      >
+        <option
+          value="{{ url_for('views.products') }}"
+          {%
+          if
+          not
+          selected_category
+          %}selected{%
+          endif
+          %}
+        >
+          All Categories
         </option>
-        {% endfor %}
+        {% for category in categories %} <option value="{{
+        url_for('views.products', category=category.name) }}" {% if
+        selected_category == category.name %}selected{% endif %}> {{
+        category.name }} {% endfor %}
       </select>
     </div>
 
     <!-- Search input -->
     <div class="search-container">
-      <input type="text" id="product-search" name="search" placeholder="Search for products..." />
+      <input
+        type="text"
+        id="product-search"
+        name="search"
+        placeholder="Search for products..."
+      />
     </div>
   </div>
 
@@ -170,30 +86,53 @@
     <!-- Price filter -->
     <div class="price-filter">
       <label for="min-price" class="price-label">Min Price:</label>
-      <input type="number" id="min-price" name="min-price" class="price-input" placeholder="0" />
+      <input
+        type="number"
+        id="min-price"
+        name="min-price"
+        class="price-input"
+        placeholder="0"
+      />
 
       <label for="max-price" class="price-label">Max Price:</label>
-      <input type="number" id="max-price" name="max-price" class="price-input" placeholder="1000" />
+      <input
+        type="number"
+        id="max-price"
+        name="max-price"
+        class="price-input"
+        placeholder="1000"
+      />
     </div>
   </div>
 </div>
-
-  
 
 <!-- Displaying products -->
 <div id="product-list">
   {% for product in products %}
   <div class="product-item">
-    <h2>{{ product.name }}</h2>
-    <p class="category">{{ product.category }}</p>
-    <p class="price">${{ product.price }}</p>
-    <p class="description">{{ product.description }}</p>
+    <!-- Product Image -->
+    <div class="image-container">
+      <img
+        src="https://placehold.co/600x400"
+        alt="{{ product.name }}"
+        class="product-image"
+      />
+    </div>
+    <!-- Product Details Container -->
+    <div class="details-container">
+      <h2>{{ product.name }}</h2>
+      <p class="category">{{ product.category }}</p>
+      <p class="price">${{ product.price }}</p>
+      <p class="description">{{ product.description }}</p>
+    </div>
     <button class="delete-btn" data-product-id="{{ product.id }}">
       <i class="bi bi-x"></i>
     </button>
-    <button class="edit-btn" data-product-id="{{ product.id }}">
-      <i class="bi bi-pencil-square"></i>
-    </button>
+    <a href="{{ url_for('views.edit_product', product_id=product.id) }}">
+      <button class="edit-btn">
+        <i class="bi bi-pencil-square"></i>
+      </button>
+    </a>
   </div>
   {% else %}
   <p>No products available.</p>

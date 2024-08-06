@@ -1,21 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Toggle add product form
-  const toggleButton = document.getElementById("toggle-form-btn");
-  const formContainer = document.getElementById("product-form-container");
-
-  toggleButton.addEventListener("click", () => {
-    if (
-      formContainer.style.display === "none" ||
-      formContainer.style.display === ""
-    ) {
-      formContainer.style.display = "block";
-      toggleButton.textContent = "Cancel";
-    } else {
-      formContainer.style.display = "none";
-      toggleButton.textContent = "Add New Product";
-    }
-  });
-
   // Import CSV File
   document.getElementById("import-csv-btn").addEventListener("click", () => {
     document.getElementById("csv-file").click();
@@ -23,43 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("csv-file").addEventListener("change", () => {
     document.getElementById("import-csv-form").submit();
-  });
-
-  // Handle edit button click with event delegation
-  document.addEventListener("click", (e) => {
-    let target = e.target;
-
-    // Check if the target is the edit button or an <i> element inside the button
-    if (target.classList.contains("edit-btn") || target.closest(".edit-btn")) {
-      const editButton = target.closest(".edit-btn");
-      const productId = editButton.getAttribute("data-product-id");
-
-      // Fetch product data from the server
-      fetch(`/get_product/${productId}`)
-        .then((response) => response.json())
-        .then((data) => {
-          // Populate the edit form with the fetched data
-          document.getElementById("edit-product-id").value = productId;
-          document.getElementById("edit-name").value = data.name;
-          document.getElementById("edit-sku").value = data.sku;
-          document.getElementById("edit-category").value = data.category;
-          document.getElementById("edit-price").value = data.price;
-          document.getElementById("edit-quantity").value = data.quantity;
-          document.getElementById("edit-supplier").value = data.supplier;
-          document.getElementById("edit-description").value = data.description;
-
-          const editFormContainer = document.getElementById(
-            "edit-form-container"
-          );
-          const editForm = document.getElementById("edit-product-form");
-
-          editForm.action = `/edit_product/${productId}`;
-          editFormContainer.style.display = "block";
-          toggleButton.textContent = "Cancel";
-          formContainer.style.display = "none"; // Hide the add form
-        })
-        .catch((error) => console.error("Error:", error));
-    }
   });
 
   // Flash messages duration

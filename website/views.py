@@ -14,6 +14,7 @@ def home():
 def products():
     selected_category = request.args.get("category", "")
     products = Product.query.filter(Product.category.like(f"%{selected_category}%")).all()
+    products = products[::-1]
     categories = Category.query.all()
     return render_template("products.html", products=products, categories=categories, selected_category=selected_category)
 

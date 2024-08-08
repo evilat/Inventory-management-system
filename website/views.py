@@ -1,7 +1,4 @@
-import csv
-import os
-import json
-import re
+import csv, io, os, json
 from flask import Blueprint, render_template, flash, request, redirect, url_for, jsonify, abort
 from werkzeug.utils import secure_filename
 from .models import Product, Category, StockMovement
@@ -54,10 +51,11 @@ def products():
 @views.route("/edit_product", methods=["GET", "POST"])
 @views.route("/edit_product/<int:product_id>", methods=["GET", "POST"])
 def edit_product(product_id=None):
-    categories = Category.query.all()  # Fetch all categories for the dropdown
+    categories = Category.query.all()
+    config = load_config()
+    default_category = config.get("default_category")
 
     if product_id:
-        # Editing an existing product
         product = Product.query.get_or_404(product_id)
         if request.method == "POST":
             product.name = request.form.get("name")
@@ -65,20 +63,15 @@ def edit_product(product_id=None):
             product.category = request.form.get("category")
             product.price = float(request.form.get("price"))
             sale_price = request.form.get("sale_price")
-            print(f"Received sale_price: '{sale_price}'")
             product.sale_price = float(sale_price) if sale_price else None
-            print(f"Processed sale_price: {product.sale_price}")
             product.supplier = request.form.get("supplier")
             product.description = request.form.get("description")
             db.session.commit()
             flash("Product updated successfully!", "success")
             return redirect(url_for("views.products"))
-        return render_template(
-            "edit_product.html", product=product, categories=categories
-        )
+        return render_template("edit_product.html", product=product, categories=categories)
 
     else:
-        # Adding a new product
         if request.method == "POST":
             name = request.form.get("name")
             sku = request.form.get("sku")
@@ -103,13 +96,7 @@ def edit_product(product_id=None):
             if errors:
                 flash(" ".join(errors), "danger")
             else:
-                sale_price = (
-                    float(sale_price) if sale_price and sale_price.strip() else None
-                )
-
-                print(f"Price: {price}")
-                print(f"Sale Price: {sale_price}")
-
+                sale_price = float(sale_price) if sale_price and sale_price.strip() else None
                 new_product = Product(
                     name=name,
                     sku=sku,
@@ -124,7 +111,10 @@ def edit_product(product_id=None):
                 flash("Product has been successfully added!", "success")
                 return redirect(url_for("views.products"))
 
-        return render_template("edit_product.html", product=None, categories=categories)
+        # Set the default category for new products
+        if not request.form.get("category"):
+            selected_category = default_category
+        return render_template("edit_product.html", product=None, categories=categories, selected_category=default_category)
 
 
 @views.route("/delete_product/<int:product_id>", methods=["DELETE"])
@@ -157,14 +147,25 @@ def get_product(product_id):
 
 @views.route("/categories", methods=["GET", "POST"])
 def manage_categories():
+    config = load_config()
+    default_category_name = config.get('default_category')
+
     if request.method == "POST":
         category_name = request.form.get("category_name")
-        if category_name:
+        if not category_name:
+            flash("Category name is required.", "danger")
+        elif category_name == default_category_name:
+            flash("Cannot create a category with the default category name.", "danger")
+        elif Category.query.filter_by(name=category_name).first():
+            flash("Category already exists.", "danger")
+        else:
             # Add new category
-            new_category = Category(name=category_name)
+            new_category = Category(name=category_name, is_deletable=True)
             db.session.add(new_category)
             db.session.commit()
-            return redirect(url_for("views.manage_categories"))
+            flash("Category added successfully!", "success")
+        
+        return redirect(url_for("views.manage_categories"))
 
     categories = Category.query.all()
     return render_template("manage_categories.html", categories=categories)
@@ -175,9 +176,11 @@ def delete_category():
     category_id = request.form.get("category_id")
     if category_id:
         category = Category.query.get(category_id)
-        if category:
+        if category and category.is_deletable:
             db.session.delete(category)
             db.session.commit()
+        else:
+            flash("Cannot delete the default category.", "danger")
     return redirect(url_for("views.manage_categories"))
 
 
@@ -286,45 +289,55 @@ def import_csv():
 
     if file and file.filename.endswith(".csv"):
         filename = secure_filename(file.filename)
-        file_path = f"uploads/{filename}"  # Adjust this path as needed
-        file.save(file_path)
+        file_content = file.read().decode("utf-8")
+        csvfile = io.StringIO(file_content)
+        reader = csv.DictReader(csvfile)
 
-        with open(file_path, newline="", encoding="utf-8") as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                name = row.get("name")
-                sku = row.get("sku")
-                category = row.get("category")
-                price = row.get("price")
-                sale_price = row.get("sale_price")
-                supplier = row.get("supplier")
-                description = row.get("description")
+        # Get default category from the config
+        config = load_config()
+        default_category_name = config.get("default_category", "Default")
 
-                # Check for existing SKU
-                existing_product = Product.query.filter_by(sku=sku).first()
-                if existing_product:
-                    # Update existing product
-                    existing_product.name = name
-                    existing_product.category = category
-                    existing_product.price = float(price)
-                    existing_product.sale_price = float(sale_price)
-                    existing_product.supplier = supplier
-                    existing_product.description = description
-                else:
-                    # Create new product
-                    new_product = Product(
-                        name=name,
-                        sku=sku,
-                        category=category,
-                        price=float(price),
-                        sale_price=float(sale_price),
-                        supplier=supplier,
-                        description=description,
-                    )
-                    db.session.add(new_product)
+        for row in reader:
+            name = row.get("name")
+            sku = row.get("sku")
+            category = row.get("category")
+            price = row.get("price")
+            sale_price = row.get("sale_price")
+            supplier = row.get("supplier")
+            description = row.get("description")
 
-            db.session.commit()
-            flash("Products imported successfully!", "success")
+            # Check and update category
+            if category:
+                existing_category = Category.query.filter_by(name=category).first()
+                if not existing_category:
+                    # Set the category to default if it doesn't exist
+                    category = default_category_name
+
+            # Check for existing SKU
+            existing_product = Product.query.filter_by(sku=sku).first()
+            if existing_product:
+                # Update existing product
+                existing_product.name = name
+                existing_product.category = category
+                existing_product.price = float(price)
+                existing_product.sale_price = float(sale_price) if sale_price else None
+                existing_product.supplier = supplier
+                existing_product.description = description
+            else:
+                # Create new product
+                new_product = Product(
+                    name=name,
+                    sku=sku,
+                    category=category,
+                    price=float(price),
+                    sale_price=float(sale_price) if sale_price else None,
+                    supplier=supplier,
+                    description=description,
+                )
+                db.session.add(new_product)
+
+        db.session.commit()
+        flash("Products imported successfully!", "success")
 
     else:
         flash("Invalid file format. Please upload a CSV file.", "danger")
@@ -361,6 +374,17 @@ def settings(section='products'):
         default_category = request.form.get("defaultCategory")
         if default_category:
             config["default_category"] = default_category
+            
+            # Check for an existing non-deletable category
+            existing_category = Category.query.filter_by(is_deletable=False).first()
+            if existing_category:
+                existing_category.name = default_category
+            else:
+                # Create a new non-deletable category
+                new_category = Category(name=default_category, is_deletable=False)
+                db.session.add(new_category)
+                
+            db.session.commit()
 
         save_config(config)
         flash("Settings saved successfully!", "success")

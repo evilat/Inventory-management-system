@@ -1,3 +1,4 @@
 {
-    "enable_stock_management": false
+    "enable_stock_management": true,
+    "default_category": "Defaul2"
 }

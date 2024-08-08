@@ -1,10 +1,14 @@
-{% extends "base.html" %} 
-{% block title %}Edit Product{% endblock %} 
-{% block content_block %}
+{% extends "base.html" %} {% block title %}Edit Product{% endblock %} {% block
+content_block %}
 <div class="container my-5">
-  <h1 class="mb-4">{% if product %}Edit Product{% else %}Add New Product{% endif %}</h1>
+  <h1 class="mb-4">
+    {% if product %}Edit Product{% else %}Add New Product{% endif %}
+  </h1>
 
-  <form method="POST" action="{{ url_for('views.edit_product', product_id=product.id) if product else url_for('views.edit_product') }}">
+  <form
+    method="POST"
+    action="{{ url_for('views.edit_product', product_id=product.id) if product else url_for('views.edit_product') }}"
+  >
     {% if product %}
     <input type="hidden" name="product_id" value="{{ product.id }}" />
     {% endif %}
@@ -12,48 +16,95 @@
     <!-- Name Field -->
     <div class="mb-3">
       <label for="name" class="form-label">Name:</label>
-      <input type="text" id="name" name="name" class="form-control" value="{{ product.name if product else '' }}" required />
+      <input
+        type="text"
+        id="name"
+        name="name"
+        class="form-control"
+        value="{{ product.name if product else '' }}"
+        required
+      />
     </div>
 
     <!-- SKU Field -->
     <div class="mb-3">
       <label for="sku" class="form-label">SKU:</label>
-      <input type="text" id="sku" name="sku" class="form-control" value="{{ product.sku if product else '' }}" required />
+      <input
+        type="text"
+        id="sku"
+        name="sku"
+        class="form-control"
+        value="{{ product.sku if product else '' }}"
+        required
+      />
     </div>
 
     <!-- Category Selector -->
     <div class="mb-3">
       <label for="category" class="form-label">Category:</label>
       <select id="category" name="category" class="form-select" required>
-        <option value="" disabled {% if not product %}selected{% endif %}>Select a category</option>
-        {% for category in categories %}
-        <option value="{{ category.name }}" {% if product and category.name == product.category %}selected{% endif %}>{{ category.name }}</option>
-        {% endfor %}
+        <option value="" disabled {% if not product %}selected{% endif %}>
+          Select a category
+        </option>
+        {% for category in categories %} <option value="{{ category.name }}" {%
+        if product and category.name == product.category %} selected {% elif not
+        product and category.name == config.default_category %} selected {%
+        endif %} >{{ category.name }} {% endfor %}
       </select>
     </div>
 
     <!-- Price Field -->
     <div class="mb-3">
       <label for="price" class="form-label">Price:</label>
-      <input type="number" id="price" name="price" class="form-control" step="0.01" min="0" value="{{ product.price if product else '' }}" required />
+      <input
+        type="number"
+        id="price"
+        name="price"
+        class="form-control"
+        step="0.01"
+        min="0"
+        value="{{ product.price if product else '' }}"
+        required
+      />
     </div>
 
     <!-- Sale Price Field -->
     <div class="mb-3">
       <label for="sale_price" class="form-label">Sale Price:</label>
-      <input type="number" id="sale_price" name="sale_price" class="form-control" step="0.01" min="0" value="{{ product.sale_price if product else '' }}" />
+      <input
+        type="number"
+        id="sale_price"
+        name="sale_price"
+        class="form-control"
+        step="0.01"
+        min="0"
+        value="{{ product.sale_price if product else '' }}"
+      />
     </div>
 
     <!-- Supplier Field -->
     <div class="mb-3">
       <label for="supplier" class="form-label">Supplier:</label>
-      <input type="text" id="supplier" name="supplier" class="form-control" value="{{ product.supplier if product else '' }}" />
+      <input
+        type="text"
+        id="supplier"
+        name="supplier"
+        class="form-control"
+        value="{{ product.supplier if product else '' }}"
+      />
     </div>
 
     <!-- Description Field -->
     <div class="mb-4">
       <label for="description" class="form-label">Description:</label>
-      <textarea id="description" name="description" class="form-control" rows="4">{{ product.description if product else '' }}</textarea>
+      <textarea
+        id="description"
+        name="description"
+        class="form-control"
+        rows="4"
+      >
+{{ product.description if product else '' }}</textarea
+      >
     </div>
 
     <!-- Submit Button -->

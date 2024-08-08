@@ -1,0 +1,249 @@
+{% extends "base.html" %} {% block title %}Settings{% endblock %} {% block
+content_block %}
+<h1>Settings</h1>
+
+<form id="settingsForm" method="post">
+  <!-- Navbar for navigation -->
+  <ul class="nav nav-pills mb-3" id="settingsTabs" role="tablist">
+    <li class="nav-item card rounded-end-0" role="presentation">
+      <a
+        class="nav-link {% if section == 'products' %}active rounded-end-0{% else %}text-dark{% endif %}"
+        id="products-tab"
+        href="{{ url_for('views.settings', section='products') }}"
+        role="tab"
+        aria-controls="products"
+        aria-selected="true"
+        >Products Settings</a
+      >
+    </li>
+    <li class="nav-item card rounded-0" role="presentation">
+      <a
+        class="nav-link {% if section == 'categories' %}active rounded-0{% else %}text-dark{% endif %}"
+        id="categories-tab"
+        href="{{ url_for('views.settings', section='categories') }}"
+        role="tab"
+        aria-controls="categories"
+        aria-selected="false"
+        >Categories Settings</a
+      >
+    </li>
+    <li class="nav-item card rounded-0" role="presentation">
+      <a
+        class="nav-link {% if section == 'stock' %}active rounded-0{% else %}text-dark{% endif %}"
+        id="stock-tab"
+        href="{{ url_for('views.settings', section='stock') }}"
+        role="tab"
+        aria-controls="stock"
+        aria-selected="false"
+        >Stock Settings</a
+      >
+    </li>
+    <li class="nav-item card rounded-0" role="presentation">
+      <a
+        class="nav-link {% if section == 'orders' %}active rounded-0{% else %}text-dark{% endif %}"
+        id="orders-tab"
+        href="{{ url_for('views.settings', section='orders') }}"
+        role="tab"
+        aria-controls="orders"
+        aria-selected="false"
+        >Orders Settings</a
+      >
+    </li>
+    <li class="nav-item card rounded-start-0" role="presentation">
+      <a
+        class="nav-link {% if section == 'customers' %}active rounded-start-0{% else %}text-dark{% endif %}"
+        id="customers-tab"
+        href="{{ url_for('views.settings', section='customers') }}"
+        role="tab"
+        aria-controls="customers"
+        aria-selected="false"
+        >Customers Settings</a
+      >
+    </li>
+  </ul>
+
+  <!-- Tab content -->
+  <div class="tab-content">
+    <!-- Products Settings Section -->
+    <div
+      class="tab-pane fade {% if section == 'products' %}show active{% endif %}"
+      id="products"
+      role="tabpanel"
+      aria-labelledby="products-tab"
+    >
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4>Products Settings</h4>
+        </div>
+        <div class="card-body">
+          <!-- This section is blank for now -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories Settings Section -->
+    <div
+      class="tab-pane fade {% if section == 'categories' %}show active{% endif %}"
+      id="categories"
+      role="tabpanel"
+      aria-labelledby="categories-tab"
+    >
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4>Categories Settings</h4>
+        </div>
+        <div class="card-body">
+          <!-- Default Category Field -->
+          <div class="mb-3">
+            <label for="defaultCategory" class="form-label"
+              >Default Category</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="defaultCategory"
+              name="defaultCategory"
+              pattern="^[^\W_][\w\s]*[^\W_]$"
+              title="Cannot start or end with special characters."
+              value="{{ config.get('default_category', '') }}"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock Settings Section -->
+    <div
+      class="tab-pane fade {% if section == 'stock' %}show active{% endif %}"
+      id="stock"
+      role="tabpanel"
+      aria-labelledby="stock-tab"
+    >
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4>Stock Settings</h4>
+        </div>
+        <div class="card-body">
+          <!-- Enable Stock Management -->
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox"
+            id="enableStockManagement" name="enableStockManagement" value="true"
+            {% if config.get('enable_stock_management') %} checked {% endif %}>
+            <label class="form-check-label" for="enableStockManagement"
+              >Enable Stock Management</label
+            >
+          </div>
+
+          <!-- Low Stock Threshold -->
+          <div class="mt-3">
+            <label for="lowStockThreshold" class="form-label"
+              >Low Stock Threshold</label
+            >
+            <input type="number" class="form-control" id="lowStockThreshold"
+            name="lowStockThreshold" min="1" max="50" value="{{
+            config.get('low_stock_threshold', '') }}" {% if not
+            config.get('enable_stock_management') %} disabled {% endif %}>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Settings Section -->
+    <div
+      class="tab-pane fade {% if section == 'orders' %}show active{% endif %}"
+      id="orders"
+      role="tabpanel"
+      aria-labelledby="orders-tab"
+    >
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4>Orders Settings</h4>
+        </div>
+        <div class="card-body">
+          <!-- This section is blank for now -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Customers Settings Section -->
+    <div
+      class="tab-pane fade {% if section == 'customers' %}show active{% endif %}"
+      id="customers"
+      role="tabpanel"
+      aria-labelledby="customers-tab"
+    >
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4>Customers Settings</h4>
+        </div>
+        <div class="card-body">
+          <!-- This section is blank for now -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buttons for saving and discarding changes -->
+  <div id="actionButtons" class="mt-4">
+    <button type="submit" class="btn btn-primary" id="saveSettings" disabled>
+      Save Settings
+    </button>
+    <button
+      type="button"
+      id="discardChanges"
+      class="btn btn-secondary"
+      disabled
+    >
+      Discard Changes
+    </button>
+  </div>
+</form>
+
+<script>
+  // Function to enable or disable buttons based on form changes
+  function toggleActionButtons(enable) {
+    document.getElementById("saveSettings").disabled = !enable;
+    document.getElementById("discardChanges").disabled = !enable;
+  }
+
+  // Track changes to enable/disable save and discard buttons
+  function trackChanges() {
+    toggleActionButtons(true);
+  }
+
+  function initializeChangeTracking() {
+    // Get all input fields, selects, and textareas within the form
+    const formElements = document.querySelectorAll(
+      "#settingsForm input, #settingsForm select, #settingsForm textarea"
+    );
+
+    formElements.forEach((element) => {
+      // Add event listeners to track changes
+      element.addEventListener("input", trackChanges);
+    });
+  }
+
+  // Call the function on page load
+  document.addEventListener("DOMContentLoaded", initializeChangeTracking);
+
+  // Discard Changes button functionality
+  document
+    .getElementById("discardChanges")
+    .addEventListener("click", function () {
+      if (!this.disabled) {
+        // Confirm discard
+        if (confirm("Are you sure you want to discard changes?")) {
+          window.location.reload(); // Reload the page to reset changes
+        }
+      }
+    });
+
+  // Enable/Disable low stock threshold based on checkbox
+  document
+    .getElementById("enableStockManagement")
+    .addEventListener("change", function () {
+      document.getElementById("lowStockThreshold").disabled = !this.checked;
+    });
+</script>
+
+{% endblock %}

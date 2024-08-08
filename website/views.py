@@ -1,7 +1,11 @@
 import csv
-from flask import Blueprint, render_template, flash, request, redirect, url_for, jsonify
-from .models import Product, Category, StockMovement
+import os
+import json
+import re
+from flask import Blueprint, render_template, flash, request, redirect, url_for, jsonify, abort
 from werkzeug.utils import secure_filename
+from .models import Product, Category, StockMovement
+from .utils import load_config
 from . import db
 
 views = Blueprint("views", __name__)
@@ -18,23 +22,23 @@ def products():
     products = Product.query.filter(
         Product.category.like(f"%{selected_category}%")
     ).all()
-    
+
     product_stock = {}
     current_quantities = {}
     for product in products:
         stock_movements = StockMovement.query.filter_by(product_id=product.id).all()
-        
+
         # Calculate the current quantity for each product
         current_quantity = 0
 
         for movement in stock_movements:
-            if movement.movement_type == 'addition':
+            if movement.movement_type == "addition":
                 current_quantity += movement.change_quantity
-            elif movement.movement_type == 'removal':
+            elif movement.movement_type == "removal":
                 current_quantity -= movement.change_quantity
 
         current_quantities[product.id] = current_quantity
-    
+
     products = products[::-1]
     categories = Category.query.all()
 
@@ -43,7 +47,7 @@ def products():
         products=products,
         categories=categories,
         selected_category=selected_category,
-        current_quantities=current_quantities
+        current_quantities=current_quantities,
     )
 
 
@@ -99,7 +103,9 @@ def edit_product(product_id=None):
             if errors:
                 flash(" ".join(errors), "danger")
             else:
-                sale_price = float(sale_price) if sale_price and sale_price.strip() else None
+                sale_price = (
+                    float(sale_price) if sale_price and sale_price.strip() else None
+                )
 
                 print(f"Price: {price}")
                 print(f"Sale Price: {sale_price}")
@@ -164,15 +170,32 @@ def manage_categories():
     return render_template("manage_categories.html", categories=categories)
 
 
+@views.route("/delete_category", methods=["POST"])
+def delete_category():
+    category_id = request.form.get("category_id")
+    if category_id:
+        category = Category.query.get(category_id)
+        if category:
+            db.session.delete(category)
+            db.session.commit()
+    return redirect(url_for("views.manage_categories"))
+
+
 @views.route("/manage_stock", methods=["GET", "POST"])
 def manage_stock():
+    config = load_config()
+
+    if not config.get("enable_stock_management", False):
+        flash("Stock management is disabled.", "danger")
+        return redirect(url_for("views.home"))
+    
     if request.method == "POST":
         product_id = request.form.get("product_id")
         change_quantity = int(request.form.get("change_quantity"))
         movement_type = request.form.get("movement_type")
         description = request.form.get("description")
 
-        if movement_type not in ['addition', 'removal']:
+        if movement_type not in ["addition", "removal"]:
             flash("Invalid movement type!", "danger")
             return redirect(url_for("views.manage_stock"))
 
@@ -189,7 +212,7 @@ def manage_stock():
 
     products = Product.query.all()
     products = products[::-1]
-    
+
     # Prepare product details including stock movements and current quantity
     product_stock_details = {}
     for product in products:
@@ -197,19 +220,22 @@ def manage_stock():
         current_quantity = 0
 
         for movement in stock_movements:
-            if movement.movement_type == 'addition':
+            if movement.movement_type == "addition":
                 current_quantity += movement.change_quantity
-            elif movement.movement_type == 'removal':
+            elif movement.movement_type == "removal":
                 current_quantity -= movement.change_quantity
-        
+
         # Convert StockMovement objects to dictionaries
-        stock_movement_list = [{
-            "change_quantity": movement.change_quantity,
-            "movement_type": movement.movement_type,
-            "movement_date": movement.movement_date.strftime('%Y-%m-%d %H:%M:%S'),
-            "description": movement.description
-        } for movement in stock_movements]
-        
+        stock_movement_list = [
+            {
+                "change_quantity": movement.change_quantity,
+                "movement_type": movement.movement_type,
+                "movement_date": movement.movement_date.strftime("%Y-%m-%d %H:%M:%S"),
+                "description": movement.description,
+            }
+            for movement in stock_movements
+        ]
+
         product_stock_details[product.id] = {
             "name": product.name,
             "category": product.category,
@@ -217,25 +243,14 @@ def manage_stock():
             "sale_price": product.sale_price,
             "description": product.description,
             "current_quantity": current_quantity,
-            "stock_movements": stock_movement_list
+            "stock_movements": stock_movement_list,
         }
-    
+
     return render_template(
         "manage_stock.html",
         products=products,
-        product_stock_details=product_stock_details
+        product_stock_details=product_stock_details,
     )
-
-
-@views.route("/delete_category", methods=["POST"])
-def delete_category():
-    category_id = request.form.get("category_id")
-    if category_id:
-        category = Category.query.get(category_id)
-        if category:
-            db.session.delete(category)
-            db.session.commit()
-    return redirect(url_for("views.manage_categories"))
 
 
 @views.route("/search_products", methods=["GET"])
@@ -315,3 +330,46 @@ def import_csv():
         flash("Invalid file format. Please upload a CSV file.", "danger")
 
     return redirect(url_for("views.products"))
+
+
+@views.route("/settings", methods=["GET", "POST"])
+@views.route("/settings/<section>", methods=["GET", "POST"])
+def settings(section='products'):
+    CONFIG_PATH = os.path.join("userdata", "config.json")
+
+    def load_config():
+        if os.path.exists(CONFIG_PATH):
+            with open(CONFIG_PATH, "r") as f:
+                return json.load(f)
+        return {}
+
+    def save_config(config):
+        os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
+        with open(CONFIG_PATH, "w") as f:
+            json.dump(config, f, indent=4)
+
+    config = load_config()
+
+    if request.method == "POST":
+        enable_stock_management = "true" in request.form.get("enableStockManagement", "false")
+        low_stock_threshold = request.form.get("lowStockThreshold")
+
+        config["enable_stock_management"] = enable_stock_management
+        if enable_stock_management and low_stock_threshold.isdigit():
+            config["low_stock_threshold"] = int(low_stock_threshold)
+        
+        default_category = request.form.get("defaultCategory")
+        if default_category:
+            config["default_category"] = default_category
+
+        save_config(config)
+        flash("Settings saved successfully!", "success")
+        return redirect(url_for('views.settings', section=section))
+
+    return render_template("settings.html", config=config, section=section)
+
+
+@views.context_processor
+def inject_config():
+    config = load_config()
+    return dict(config=config)

@@ -8,7 +8,6 @@ class Product(db.Model):
     category = db.Column(db.String(50))
     price = db.Column(db.Float, nullable=False)
     sale_price = db.Column(db.Float, nullable=True)
-    quantity = db.Column(db.Integer, nullable=False, default=0)
     supplier = db.Column(db.String(100))
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, server_default=db.func.now())

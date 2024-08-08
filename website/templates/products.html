@@ -2,19 +2,23 @@
 content_block %}
 
 <!-- Product add toggle -->
-<div class="container-product-add">
-  <!-- Button to toggle the new product form -->
-  <a href="{{ url_for('views.edit_product')}}"
-    ><button id="toggle-form-btn">Add New Product</button></a
-  >
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <!-- Button to toggle the new product form -->
+    <a
+      href="{{ url_for('views.edit_product')}}"
+      id="add-new-product"
+      class="btn btn-primary"
+      >Add New Product</a
+    >
 
-  <!-- Import CSV Form -->
-  <div class="import-container">
+    <!-- Import CSV Form -->
     <form
       id="import-csv-form"
       method="POST"
       action="{{ url_for('views.import_csv') }}"
       enctype="multipart/form-data"
+      class="d-inline-block"
     >
       <input
         type="file"
@@ -24,23 +28,25 @@ content_block %}
         style="display: none"
         required
       />
-      <button type="button" id="import-csv-btn">Import CSV</button>
+      <button type="button" id="import-csv-btn" class="btn btn-secondary">
+        Import CSV
+      </button>
     </form>
   </div>
 </div>
 
 <!-- Category filters -->
-<div class="category-filters">
-  <div class="row">
+<div class="container mb-4">
+  <div class="row mb-3">
     <!-- Category selector -->
-    <div class="selector-container">
-      <label for="category-selector" class="selector-label"
+    <div class="col-md-6">
+      <label for="category-selector" id="category-label" class="form-label"
         >Filter by Category:</label
       >
       <select
         id="category-selector"
         name="category"
-        class="custom-select"
+        class="form-select"
         onchange="location.href = this.options[this.selectedIndex].value;"
       >
         <option
@@ -57,17 +63,21 @@ content_block %}
         </option>
         {% for category in categories %} <option value="{{
         url_for('views.products', category=category.name) }}" {% if
-        selected_category == category.name %}selected{% endif %}> {{
+        selected_category == category.name %}selected{% endif %}>{{
         category.name }} {% endfor %}
       </select>
     </div>
 
     <!-- Search input -->
-    <div class="search-container">
+    <div class="col-md-6">
+      <label for="product-search" id="search-label" class="form-label"
+        >Search:</label
+      >
       <input
         type="text"
         id="product-search"
         name="search"
+        class="form-control"
         placeholder="Search for products..."
       />
     </div>
@@ -75,68 +85,108 @@ content_block %}
 
   <div class="row">
     <!-- Layout toggle selector -->
-    <div class="layout-toggle">
-      <label for="layout-selector" class="selector-label">Layout:</label>
-      <select id="layout-selector" class="custom-select">
+    <div class="col-md-6">
+      <label for="layout-selector" id="layout-label" class="form-label"
+        >Layout:</label
+      >
+      <select id="layout-selector" class="form-select">
         <option value="grid">Grid</option>
         <option value="list">List</option>
       </select>
     </div>
 
     <!-- Price filter -->
-    <div class="price-filter">
-      <label for="min-price" class="price-label">Min Price:</label>
-      <input
-        type="number"
-        id="min-price"
-        name="min-price"
-        class="price-input"
-        placeholder="0"
-      />
-
-      <label for="max-price" class="price-label">Max Price:</label>
-      <input
-        type="number"
-        id="max-price"
-        name="max-price"
-        class="price-input"
-        placeholder="1000"
-      />
+    <div class="col-md-6 d-flex justify-content-between">
+      <div class="me-2">
+        <label for="min-price" id="min-price-label" class="form-label"
+          >Min Price:</label
+        >
+        <input
+          type="number"
+          id="min-price"
+          name="min-price"
+          class="form-control"
+          placeholder="0"
+        />
+      </div>
+      <div>
+        <label for="max-price" id="max-price-label" class="form-label"
+          >Max Price:</label
+        >
+        <input
+          type="number"
+          id="max-price"
+          name="max-price"
+          class="form-control"
+          placeholder="1000"
+        />
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Displaying products -->
-<div id="product-list">
-  {% for product in products %}
-  <div class="product-item">
-    <!-- Product Image -->
-    <div class="image-container">
-      <img
-        src="https://placehold.co/600x400"
-        alt="{{ product.name }}"
-        class="product-image"
-      />
+<div id="product-list" class="container">
+  <div class="row">
+    {% for product in products %}
+    <div class="col-12 mb-3 product-item">
+      <div class="list-group">
+        <div class="list-group-item">
+          <div class="d-flex align-items-center">
+            <!-- Product Image -->
+            <img
+              src="https://placehold.co/100x100"
+              class="img-thumbnail me-3"
+              alt="{{ product.name }}"
+              style="max-width: 100px"
+            />
+            <div class="flex-grow-1">
+              <!-- Product Details Container -->
+              <h5 class="mb-1 product-name">{{ product.name }}</h5>
+              <p class="mb-1">
+                <strong>Category:</strong> {{ product.category }}
+              </p>
+              <p class="mb-1">
+                <strong>Price:</strong>
+                {% if product.sale_price %}
+                <span class="text-decoration-line-through text-muted"
+                  >${{ product.price }}</span
+                >
+                <span class="text-danger ms-2">${{ product.sale_price }}</span>
+                <span class="text-success ms-2">
+                  ({{ '{:.0f}'.format(((product.price - product.sale_price)
+                  / product.price) * 100) }}% Discount)
+                </span>
+                {% else %} ${{ product.price }} {% endif %}
+              </p>
+              <p class="mb-1">
+                <strong>Current Quantity:</strong> {{
+                current_quantities[product.id] }}
+              </p>
+              <p class="mb-1">{{ product.description }}</p>
+            </div>
+            <div class="d-flex flex-column align-items-end">
+              <button
+                class="btn btn-danger mb-2 delete-btn"
+                data-product-id="{{ product.id }}"
+              >
+                <i class="bi bi-x"></i> Delete
+              </button>
+              <a
+                href="{{ url_for('views.edit_product', product_id=product.id) }}"
+                class="btn btn-warning"
+              >
+                <i class="bi bi-pencil-square"></i> Edit
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <!-- Product Details Container -->
-    <div class="details-container">
-      <h2>{{ product.name }}</h2>
-      <p class="category">{{ product.category }}</p>
-      <p class="price">${{ product.price }}</p>
-      <p class="description">{{ product.description }}</p>
-    </div>
-    <button class="delete-btn" data-product-id="{{ product.id }}">
-      <i class="bi bi-x"></i>
-    </button>
-    <a href="{{ url_for('views.edit_product', product_id=product.id) }}">
-      <button class="edit-btn">
-        <i class="bi bi-pencil-square"></i>
-      </button>
-    </a>
+    {% else %}
+    <p class="text-center">No products available.</p>
+    {% endfor %}
   </div>
-  {% else %}
-  <p>No products available.</p>
-  {% endfor %}
 </div>
 
 {% endblock %}

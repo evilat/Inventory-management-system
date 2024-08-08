@@ -1,33 +1,36 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Import CSV File
-  document.getElementById("import-csv-btn").addEventListener("click", () => {
-    document.getElementById("csv-file").click();
-  });
+  const importCsvBtn = document.getElementById("import-csv-btn");
+  const csvFileInput = document.getElementById("csv-file");
+  const importCsvForm = document.getElementById("import-csv-form");
 
-  document.getElementById("csv-file").addEventListener("change", () => {
-    document.getElementById("import-csv-form").submit();
-  });
+  if (importCsvBtn && csvFileInput && importCsvForm) {
+    importCsvBtn.addEventListener("click", () => {
+      csvFileInput.click();
+    });
+
+    csvFileInput.addEventListener("change", () => {
+      importCsvForm.submit();
+    });
+  }
 
   // Flash messages duration
   const flashMessages = document.getElementById("flash-messages");
 
   if (flashMessages) {
-    // Start fade-out after 4 seconds, then hide the element
     setTimeout(() => {
       flashMessages.classList.add("fade-out");
-    }, 4000); // 4000 milliseconds = 4 seconds
+    }, 4000);
 
-    // Fully hide after the fade-out animation completes (1 second)
     setTimeout(() => {
       flashMessages.style.display = "none";
-    }, 5000); // 5000 milliseconds = 5 seconds
+    }, 5000);
   }
 
   // Delete Product button using event delegation for dynamic content
   document.addEventListener("click", (e) => {
     let target = e.target;
 
-    // Check if the target is the delete button or an <i> element inside the button
     if (
       target.classList.contains("delete-btn") ||
       target.closest(".delete-btn")
@@ -61,22 +64,41 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+  
+  // Sorting functionality
+  const sortSelector = document.getElementById("sort-selector");
+  const productItemsContainer = document.getElementById("product-list");
 
-  // Layout toggle functionality
-  const layoutSelector = document.getElementById("layout-selector");
-  const productList = document.getElementById("product-list");
+  if (sortSelector && productItemsContainer) {
+    function sortProductsByName(order) {
+      const productItems = Array.from(
+        productItemsContainer.querySelectorAll(".product-item")
+      );
 
-  // Initialize layout from local storage if it exists
-  const savedLayout = localStorage.getItem("layout") || "grid";
-  productList.classList.add(`${savedLayout}-layout`);
-  layoutSelector.value = savedLayout;
+      productItems.sort((a, b) => {
+        const nameA = a
+          .querySelector(".product-name")
+          .textContent.toLowerCase();
+        const nameB = b
+          .querySelector(".product-name")
+          .textContent.toLowerCase();
 
-  layoutSelector.addEventListener("change", () => {
-    const selectedLayout = layoutSelector.value;
-    productList.classList.remove("grid-layout", "list-layout");
-    productList.classList.add(`${selectedLayout}-layout`);
-    localStorage.setItem("layout", selectedLayout);
-  });
+        return order === "name-az"
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      });
+
+      productItemsContainer.innerHTML = "";
+      productItems.forEach((item) => productItemsContainer.appendChild(item));
+    }
+
+    sortSelector.addEventListener("change", () => {
+      const selectedSort = sortSelector.value;
+      if (selectedSort === "name-az" || selectedSort === "name-za") {
+        sortProductsByName(selectedSort);
+      }
+    });
+  }
 
   // Filter products by price and search term
   const minPriceInput = document.getElementById("min-price");
@@ -90,29 +112,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll(".product-item").forEach((productItem) => {
       const productName = productItem
-        .querySelector("h2")
+        .querySelector(".product-name")
         .textContent.toLowerCase();
       const productCategory = productItem
-        .querySelector(".category")
+        .querySelector("p:first-of-type")
         .textContent.toLowerCase();
-      const productPrice = parseFloat(
-        productItem.querySelector(".price").textContent.replace(/[^\d.-]/g, "")
-      );
+      const productPriceText = productItem.querySelector("p:nth-of-type(2)");
 
-      const matchesSearch =
-        productName.includes(query) || productCategory.includes(query);
-      const matchesPrice = productPrice >= minPrice && productPrice <= maxPrice;
+      if (productPriceText) {
+        const productPrice = parseFloat(
+          productPriceText.textContent.replace(/[^\d.-]/g, "")
+        );
 
-      if (matchesSearch && matchesPrice) {
-        productItem.style.display = "block";
+        const matchesSearch =
+          productName.includes(query) || productCategory.includes(query);
+        const matchesPrice =
+          productPrice >= minPrice && productPrice <= maxPrice;
+
+        if (matchesSearch && matchesPrice) {
+          productItem.style.display = "block";
+        } else {
+          productItem.style.display = "none";
+        }
       } else {
-        productItem.style.display = "none";
+        console.error("Product price text not found.");
       }
     });
   }
 
-  // Attach event listeners for filtering
-  minPriceInput.addEventListener("input", filterProducts);
-  maxPriceInput.addEventListener("input", filterProducts);
-  searchInput.addEventListener("input", filterProducts);
+  if (minPriceInput) minPriceInput.addEventListener("input", filterProducts);
+  if (maxPriceInput) maxPriceInput.addEventListener("input", filterProducts);
+  if (searchInput) searchInput.addEventListener("input", filterProducts);
 });

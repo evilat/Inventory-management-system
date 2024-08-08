@@ -3,29 +3,32 @@
 {% block title %}Manage Categories{% endblock %}
 
 {% block content_block %}
-<h1>Manage Categories</h1>
+<div class="container mt-4">
+    <h1>Categories</h1>
 
-<form method="POST" action="{{ url_for('views.manage_categories') }}">
-    <label for="category_name">New Category:</label>
-    <input type="text" id="category_name" name="category_name" required />
-    <button type="submit">Add Category</button>
-</form>
+    <form method="POST" action="{{ url_for('views.manage_categories') }}" class="mb-4">
+        <div class="mb-3">
+            <label for="category_name" class="form-label">New Category:</label>
+            <input type="text" id="category_name" name="category_name" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Add Category</button>
+    </form>
 
-<h2>Existing Categories</h2>
-<ul class="category-list">
-    {% for category in categories %}
-    <li class="category-item">
-        <span class="category-name">{{ category.name }}</span>
-        <form method="POST" action="{{ url_for('views.delete_category') }}" class="delete-category-form">
-            <input type="hidden" name="category_id" value="{{ category.id }}" />
-            <button type="submit" class="delete-button">
-                &times;
-            </button>
-        </form>
-    </li>
-    {% else %}
-    <li class="category-item no-categories">No categories available.</li>
-    {% endfor %}
-</ul>
-
+    <h2>Existing Categories</h2>
+    <ul class="list-group">
+        {% for category in categories %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span class="category-name">{{ category.name }}</span>
+            <form method="POST" action="{{ url_for('views.delete_category') }}" class="delete-category-form mb-0">
+                <input type="hidden" name="category_id" value="{{ category.id }}" />
+                <button type="submit" class="btn btn-danger btn-sm">
+                    &times;
+                </button>
+            </form>
+        </li>
+        {% else %}
+        <li class="list-group-item text-center">No categories available.</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}

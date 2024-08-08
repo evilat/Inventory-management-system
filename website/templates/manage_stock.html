@@ -1,0 +1,122 @@
+{% extends "base.html" %} {% block title %}Manage Stock{% endblock %} {% block
+content_block %}
+<div class="container mt-4">
+  <h1 class="mb-4">Manage Stock</h1>
+
+  <!-- Combined Form for Stock Movement and Viewing Stock History -->
+  <form action="" method="post" class="mb-4">
+    <div class="form-group mb-3">
+      <label for="product_id">Product:</label>
+      <select name="product_id" id="product_id" class="form-control" required>
+        <option value="" disabled selected>Select a product</option>
+        {% for product in products %}
+        <option value="{{ product.id }}">{{ product.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group mb-3">
+      <label for="change_quantity">Change Quantity:</label>
+      <input
+        type="number"
+        name="change_quantity"
+        id="change_quantity"
+        class="form-control"
+        required
+      />
+    </div>
+
+    <div class="form-group mb-3">
+      <label for="movement_type">Movement Type:</label>
+      <select
+        name="movement_type"
+        id="movement_type"
+        class="form-control"
+        required
+      >
+        <option value="addition">Addition</option>
+        <option value="removal">Removal</option>
+      </select>
+    </div>
+
+    <div class="form-group mb-3">
+      <label for="description">Description:</label>
+      <textarea
+        name="description"
+        id="description"
+        class="form-control"
+      ></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update Stock</button>
+  </form>
+
+  <!-- Product Details Section -->
+  <div id="productDetails" class="mt-4">
+    <!-- Product details will be dynamically populated here -->
+  </div>
+</div>
+
+<script>
+  // JavaScript to dynamically display product details with color-coded quantity in two sections
+  document.getElementById('product_id').addEventListener('change', function() {
+      var productId = this.value;
+      var productDetailsDiv = document.getElementById('productDetails');
+      productDetailsDiv.innerHTML = '';  // Clear previous content
+
+      if (productId) {
+          var productDetails = {{ product_stock_details|tojson }};
+          var selectedProduct = productDetails[productId];
+
+          if (selectedProduct) {
+              // Determine color based on quantity
+              var quantityColor = '';
+              if (selectedProduct.current_quantity === 0) {
+                  quantityColor = 'red';
+              } else if (selectedProduct.current_quantity < 3) {
+                  quantityColor = 'red';
+              } else if (selectedProduct.current_quantity < 10) {
+                  quantityColor = 'orange';
+              }
+
+              // Display stock movements or a message if none exist
+              var stockMovementHTML = '';
+              if (selectedProduct.stock_movements.length > 0) {
+                  stockMovementHTML = `
+                      <h6>Stock Movements:</h6>
+                      <ul>
+                          ${selectedProduct.stock_movements.map(movement => `
+                              <li><strong>${movement.movement_type}:</strong> ${movement.change_quantity} on ${new Date(movement.movement_date).toLocaleDateString()}</li>
+                          `).join('')}
+                      </ul>
+                  `;
+              } else {
+                  stockMovementHTML = '<p>No stock movement history available.</p>';
+              }
+
+              // Display product details in two columns
+              productDetailsDiv.innerHTML = `
+                  <div class="row">
+                      <div class="col-md-6">
+                        <h3 class="mb-4">Stock History:</h3>
+                          <p><strong>Current Quantity:</strong>
+                            <strong style="color:${quantityColor}">
+                                ${selectedProduct.current_quantity === 0 ? 'No stock remaining' : selectedProduct.current_quantity}
+                            </strong>
+                        </p>
+                        ${stockMovementHTML}
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="mb-4">Product Details:</h3>
+                        <h5>${selectedProduct.name}</h5>
+                        <p><strong>Category:</strong> ${selectedProduct.category}</p>
+                        <p><strong>Price:</strong> ${selectedProduct.sale_price || selectedProduct.price}</p>
+                    </div>
+                </div>
+              `;
+          }
+      }
+  });
+</script>
+
+{% endblock %}

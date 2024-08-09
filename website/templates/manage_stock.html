@@ -14,7 +14,6 @@ content_block %}
         {% endfor %}
       </select>
     </div>
-
     <div class="form-group mb-3">
       <label for="change_quantity">Change Quantity:</label>
       <input
@@ -58,11 +57,12 @@ content_block %}
 </div>
 
 <script>
+  var thresholdValue = {{ threshold_value | tojson }};
   // JavaScript to dynamically display product details with color-coded quantity in two sections
   document.getElementById('product_id').addEventListener('change', function() {
-      var productId = this.value;
-      var productDetailsDiv = document.getElementById('productDetails');
-      productDetailsDiv.innerHTML = '';  // Clear previous content
+    var productId = this.value;
+    var productDetailsDiv = document.getElementById('productDetails');
+    productDetailsDiv.innerHTML = '';  // Clear previous content
 
       if (productId) {
           var productDetails = {{ product_stock_details|tojson }};
@@ -73,10 +73,8 @@ content_block %}
               var quantityColor = '';
               if (selectedProduct.current_quantity === 0) {
                   quantityColor = 'red';
-              } else if (selectedProduct.current_quantity < 3) {
+              } else if (selectedProduct.current_quantity < thresholdValue) {
                   quantityColor = 'red';
-              } else if (selectedProduct.current_quantity < 10) {
-                  quantityColor = 'orange';
               }
 
               // Display stock movements or a message if none exist
@@ -86,7 +84,12 @@ content_block %}
                       <h6>Stock Movements:</h6>
                       <ul>
                           ${selectedProduct.stock_movements.map(movement => `
-                              <li><strong>${movement.movement_type}:</strong> ${movement.change_quantity} on ${new Date(movement.movement_date).toLocaleDateString()}</li>
+                              <li>
+                                  <strong>
+                                      ${movement.movement_type}:
+                                  </strong>
+                                  ${movement.change_quantity} on ${new Date(movement.movement_date).toLocaleDateString()}
+                              </li>
                           `).join('')}
                       </ul>
                   `;
@@ -94,11 +97,12 @@ content_block %}
                   stockMovementHTML = '<p>No stock movement history available.</p>';
               }
 
+
               // Display product details in two columns
               productDetailsDiv.innerHTML = `
                   <div class="row">
                       <div class="col-md-6">
-                        <h3 class="mb-4">Stock History:</h3>
+                        <h3 class="mb-4">Stock Details:</h3>
                           <p><strong>Current Quantity:</strong>
                             <strong style="color:${quantityColor}">
                                 ${selectedProduct.current_quantity === 0 ? 'No stock remaining' : selectedProduct.current_quantity}
@@ -109,8 +113,8 @@ content_block %}
                     <div class="col-md-6">
                         <h3 class="mb-4">Product Details:</h3>
                         <h5>${selectedProduct.name}</h5>
-                        <p><strong>Category:</strong> ${selectedProduct.category}</p>
-                        <p><strong>Price:</strong> ${selectedProduct.sale_price || selectedProduct.price}</p>
+                        <p class="mb-2"><strong>Category:</strong> ${selectedProduct.category}</p>
+                        <p class="mb-2"><strong>Price:</strong> ${selectedProduct.sale_price || selectedProduct.price}</p>
                     </div>
                 </div>
               `;

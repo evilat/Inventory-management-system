@@ -1,5 +1,6 @@
 import csv, io, os, json
-from flask import Blueprint, render_template, flash, request, redirect, url_for, jsonify, abort
+from flask import Blueprint, render_template, flash, request, redirect, url_for, jsonify
+from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from .models import Product, Category, StockMovement
 from .utils import load_config
@@ -7,13 +8,14 @@ from . import db
 
 views = Blueprint("views", __name__)
 
-
 @views.route("/")
+@login_required
 def home():
-    return render_template("overview.html")
+    return render_template("overview.html", user=current_user)
 
 
 @views.route("/products", methods=["GET"])
+@login_required
 def products():
     selected_category = request.args.get("category", "")
     products = Product.query.filter(
@@ -50,6 +52,7 @@ def products():
 
 @views.route("/edit_product", methods=["GET", "POST"])
 @views.route("/edit_product/<int:product_id>", methods=["GET", "POST"])
+@login_required
 def edit_product(product_id=None):
     categories = Category.query.all()
     config = load_config()
@@ -118,6 +121,7 @@ def edit_product(product_id=None):
 
 
 @views.route("/delete_product/<int:product_id>", methods=["DELETE"])
+@login_required
 def delete_product(product_id):
     product = Product.query.get(product_id)
 
@@ -130,6 +134,7 @@ def delete_product(product_id):
 
 
 @views.route("/get_product/<int:product_id>", methods=["GET"])
+@login_required
 def get_product(product_id):
     product = Product.query.get_or_404(product_id)
     return jsonify(
@@ -146,6 +151,7 @@ def get_product(product_id):
 
 
 @views.route("/categories", methods=["GET", "POST"])
+@login_required
 def manage_categories():
     config = load_config()
     default_category_name = config.get('default_category')
@@ -172,6 +178,7 @@ def manage_categories():
 
 
 @views.route("/delete_category", methods=["POST"])
+@login_required
 def delete_category():
     category_id = request.form.get("category_id")
     if category_id:
@@ -185,12 +192,15 @@ def delete_category():
 
 
 @views.route("/manage_stock", methods=["GET", "POST"])
+@login_required
 def manage_stock():
     config = load_config()
 
     if not config.get("enable_stock_management", False):
         flash("Stock management is disabled.", "danger")
         return redirect(url_for("views.home"))
+    
+    threshold_value = config.get("low_stock_threshold", 10)
     
     if request.method == "POST":
         product_id = request.form.get("product_id")
@@ -253,10 +263,12 @@ def manage_stock():
         "manage_stock.html",
         products=products,
         product_stock_details=product_stock_details,
+        threshold_value=threshold_value
     )
 
 
 @views.route("/search_products", methods=["GET"])
+@login_required
 def search_products():
     query = request.args.get("query", "")
     products = Product.query.filter(Product.name.ilike(f"%{query}%")).all()
@@ -276,6 +288,7 @@ def search_products():
 
 
 @views.route("/import_csv", methods=["POST"])
+@login_required
 def import_csv():
     if "csv_file" not in request.files:
         flash("No file part", "danger")
@@ -347,6 +360,7 @@ def import_csv():
 
 @views.route("/settings", methods=["GET", "POST"])
 @views.route("/settings/<section>", methods=["GET", "POST"])
+@login_required
 def settings(section='products'):
     CONFIG_PATH = os.path.join("userdata", "config.json")
 
@@ -394,6 +408,7 @@ def settings(section='products'):
 
 
 @views.context_processor
+@login_required
 def inject_config():
     config = load_config()
     return dict(config=config)

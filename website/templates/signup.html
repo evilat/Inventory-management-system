@@ -1,0 +1,156 @@
+{% extends "base-auth.html" %} {% block title %}Signup{% endblock %} {% block
+content_block %}
+
+<form method="POST" class="container needs-validation" novalidate>
+  <div class="row justify-content-md-center">
+    <div class="col-md-3 mb-3">
+      <label for="firstname" class="form-label">First name</label>
+      <input
+        type="text"
+        class="form-control"
+        name="firstname"
+        id="firstname"
+        required
+      />
+      <div class="invalid-feedback">You must enter your first name.</div>
+      <div class="valid-feedback">Looks good!</div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <label for="lastname" class="form-label">Last name</label>
+      <input
+        type="text"
+        class="form-control"
+        name="lastname"
+        id="lastname"
+        required
+      />
+      <div class="invalid-feedback">You must enter your last name.</div>
+      <div class="valid-feedback">Looks good!</div>
+    </div>
+  </div>
+  <div class="row justify-content-md-center">
+    <div class="col-md-6 mb-3">
+      <label for="email" class="form-label">Email address</label>
+      <input
+        type="email"
+        class="form-control"
+        name="email"
+        id="email"
+        required
+      />
+      <div class="invalid-feedback">You must enter your email address.</div>
+      <div class="valid-feedback">Looks good!</div>
+    </div>
+  </div>
+  <div class="row justify-content-md-center">
+    <div class="col-md-3 mb-3">
+      <label for="password1" class="form-label">Password</label>
+      <div class="input-group">
+        <input
+          type="password"
+          class="form-control"
+          name="password1"
+          id="password1"
+          required
+          onkeyup="confirm_password()"
+        />
+        <i
+          role="button"
+          class="bi bi-eye-slash input-group-text"
+          id="togglepassword1"
+        ></i>
+      </div>
+      <div class="invalid-feedback">You must enter a valid password</div>
+      <div class="valid-feedback">Looks good!</div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <label for="password2" class="form-label">Confirm password</label>
+      <div class="input-group">
+        <input
+          type="password"
+          class="form-control"
+          name="password2"
+          id="password2"
+          required
+          onkeyup="confirm_password()"
+        />
+        <i
+          role="button"
+          class="bi bi-eye-slash input-group-text"
+          id="togglepassword2"
+        ></i>
+      </div>
+      <div class="invalid-feedback">Your password must be strong.</div>
+      <div class="valid-feedback">Looks good!</div>
+    </div>
+  </div>
+  <div class="row justify-content-md-center">
+    <div class="text-center invalid-feedback pwd-nomatch">
+      Passwords do not match.
+    </div>
+    <div class="col-md-6 mb-3">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value=""
+          id="invalidCheck"
+          required
+        />
+        <label class="form-check-label" for="invalidCheck">
+          Agree to terms and conditions
+        </label>
+        <div class="invalid-feedback">You must agree before submitting.</div>
+      </div>
+    </div>
+  </div>
+  <div class="row justify-content-md-center">
+    <div class="d-grid gap-2 col-md-6 mb-4">
+      <button class="btn btn-primary" type="submit" id="submit">Submit</button>
+    </div>
+  </div>
+  <div class="text-center">
+    <p>Already a member? <a href="{{ url_for('auth.login') }}">Login</a></p>
+  </div>
+</form>
+{% block js_block %}
+<script>
+  const togglepassword1 = document.querySelector("#togglepassword1");
+  const password1 = document.querySelector("#password1");
+
+  togglepassword1.addEventListener("click", () => {
+    const type =
+      password1.getAttribute("type") === "password" ? "text" : "password";
+    password1.setAttribute("type", type);
+    togglepassword1.classList.toggle("bi-eye");
+    togglepassword1.classList.toggle("btn");
+    togglepassword1.classList.toggle("btn-secondary");
+    togglepassword1.classList.toggle("bi-eye-slash");
+  });
+
+  const togglepassword2 = document.querySelector("#togglepassword2");
+  const password2 = document.querySelector("#password2");
+
+  togglepassword2.addEventListener("click", () => {
+    const type =
+      password2.getAttribute("type") === "password" ? "text" : "password";
+    password2.setAttribute("type", type);
+    togglepassword2.classList.toggle("bi-eye");
+    togglepassword2.classList.toggle("btn");
+    togglepassword2.classList.toggle("btn-secondary");
+    togglepassword2.classList.toggle("bi-eye-slash");
+  });
+
+  function confirm_password() {
+    const password1 = document.getElementById("password1").value;
+    const password2 = document.getElementById("password2").value;
+    const invalidFeedback = document.querySelector(".pwd-nomatch");
+
+    if (password1 !== password2) {
+      invalidFeedback.style.display = "block";
+    } else {
+      invalidFeedback.style.display = "none";
+    }
+  }
+</script>
+{% endblock %} {% endblock %}

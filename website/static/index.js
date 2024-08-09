@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
-  
+
   // Sorting functionality
   const sortSelector = document.getElementById("sort-selector");
   const productItemsContainer = document.getElementById("product-list");
@@ -143,4 +143,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (minPriceInput) minPriceInput.addEventListener("input", filterProducts);
   if (maxPriceInput) maxPriceInput.addEventListener("input", filterProducts);
   if (searchInput) searchInput.addEventListener("input", filterProducts);
+
+  // Initialize all tooltips
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 });

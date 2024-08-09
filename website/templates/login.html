@@ -1,0 +1,64 @@
+{% extends "base-auth.html" %} {% block title %}Login{% endblock %} {% block
+content_block %}
+
+<form method="POST" class="container needs-validation" novalidate>
+  <div class="row justify-content-md-center">
+    <div class="col-md-4 mb-4">
+      <label for="email" class="form-label">Email address</label>
+      <input
+        type="email"
+        class="form-control"
+        name="email"
+        id="email"
+        required
+      />
+      <div class="invalid-feedback">You must enter your email address.</div>
+      <div class="valid-feedback">Looks good!</div>
+    </div>
+  </div>
+  <div class="row justify-content-md-center">
+    <div class="col-md-4 mb-4">
+      <label for="password" class="form-label">Password</label>
+      <div class="input-group">
+        <input
+          type="password"
+          class="form-control"
+          name="password"
+          id="password"
+          required
+        />
+        <i
+          role="button"
+          class="bi bi-eye-slash input-group-text"
+          id="togglepassword1"
+        ></i>
+      </div>
+      <div class="invalid-feedback">Your password must be strong.</div>
+      <div class="valid-feedback">Looks good!</div>
+    </div>
+  </div>
+  <div class="row justify-content-md-center">
+    <div class="d-grid gap-2 col-md-4 mb-4">
+      <button class="btn btn-primary" type="submit" id="submit">Submit</button>
+    </div>
+  </div>
+  <div class="text-center">
+    <p>Not a member? <a href="{{ url_for('auth.signup') }}">Register</a></p>
+  </div>
+</form>
+{% endblock %} {% block js_block %}
+
+<script>
+  const togglepassword1 = document.querySelector("#togglepassword1");
+  const password1 = document.querySelector("#password1");
+
+  togglepassword1.addEventListener("click", () => {
+    const type =
+      password1.getAttribute("type") === "password" ? "text" : "password";
+    password1.setAttribute("type", type);
+    togglepassword1.classList.toggle("bi-eye");
+    togglepassword1.classList.toggle("bi-eye-slash");
+  });
+</script>
+
+{% endblock %}

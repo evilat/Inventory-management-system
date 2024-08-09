@@ -8,6 +8,32 @@ from . import db
 
 views = Blueprint("views", __name__)
 
+CONFIG_PATH = os.path.join("userdata", "config.json")
+
+def load_config():
+    default_config = {
+        "enable_stock_management": True,
+        "default_category": "Default",
+        "low_stock_threshold": 10
+    }
+
+    if not os.path.exists(CONFIG_PATH):
+        os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
+        with open(CONFIG_PATH, "w") as f:
+            json.dump(default_config, f, indent=4)
+        return default_config
+
+    with open(CONFIG_PATH, "r") as f:
+        return json.load(f)
+
+def save_config(config):
+    os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
+    with open(CONFIG_PATH, "w") as f:
+        json.dump(config, f, indent=4)
+
+# Load the configuration when the application starts
+config = load_config()
+
 @views.route("/")
 @login_required
 def home():
@@ -362,21 +388,6 @@ def import_csv():
 @views.route("/settings/<section>", methods=["GET", "POST"])
 @login_required
 def settings(section='products'):
-    CONFIG_PATH = os.path.join("userdata", "config.json")
-
-    def load_config():
-        if os.path.exists(CONFIG_PATH):
-            with open(CONFIG_PATH, "r") as f:
-                return json.load(f)
-        return {}
-
-    def save_config(config):
-        os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
-        with open(CONFIG_PATH, "w") as f:
-            json.dump(config, f, indent=4)
-
-    config = load_config()
-
     if request.method == "POST":
         enable_stock_management = "true" in request.form.get("enableStockManagement", "false")
         low_stock_threshold = request.form.get("lowStockThreshold")
